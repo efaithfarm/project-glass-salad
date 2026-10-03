@@ -19,12 +19,17 @@ json_file = json_import_dir / "sample_sensor_data.json"
 
 sensor_readings = []
 
-def fetch_sensor_data(json_path):
+def load_sensor_data_from_file(json_path):
     #print(json_path)
     with open(json_path, 'r') as file:
-        input_data = json.load(file)
-    return input_data
+        output_data = json.load(file)
+    return output_data
     
+
+def fetch_sensor_data(json_data):
+    loaded_data = load_sensor_data_from_file(json_data)
+    return loaded_data
+
 def check_data_freshness(sensor_output):
     extract_time = dt.datetime.now()
     freshness_data = []
