@@ -4,7 +4,6 @@
 ### sensor-output-collector: fetches sensor data and feeds it to repository based on freshness
 ###
 
-#import requests
 import datetime as dt
 import json
 from pathlib import Path
@@ -15,13 +14,6 @@ freshness_threshold = dt.timedelta(hours=1)
 json_file_loc = "http://localhost:8080/sample_sensor_data.json"
 
 sensor_readings = []
-
-# def load_sensor_data_from_file(json_path):
-#     #print(json_path)
-#     with open(json_path, 'r') as file:
-#         output_data = json.load(file)
-#     return output_data
-    
 
 def fetch_sensor_data(location):
     http_session = requests.session()
@@ -59,4 +51,3 @@ sensor_readings = fetch_sensor_data(json_file_loc)
 check_results = check_data_freshness(sensor_readings)
 
 read_sensor_data(check_results)
-#if __name__ == "__main__":
