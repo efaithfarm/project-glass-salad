@@ -6,36 +6,25 @@
 
 #import requests
 import datetime as dt
+import json
+from pathlib import Path
 
 freshness_threshold = dt.timedelta(hours=1)
 
-sensor_1_reading = {
-    'SensorName':'G_A_sensor_A-3-1',
-    'Location':'GreenhouseA_Row3_Box1',
-    'Timestamp':'2026-10-03 06:37:42',
-    'Metric':'Temperature',
-    'Unit':'F',
-    'Value':'77.3'
-}
-sensor_2_reading = {
-    'SensorName':'G_A_sensor_A-3-2',
-    'Location':'GreenhouseA_Row3_Box2',
-    'Timestamp':'2026-10-03 06:38:16',
-    'Metric':'Temperature',
-    'Unit':'F',
-    'Value':'77.7'
-}
-sensor_3_reading = {
-    'SensorName':'G_A_sensor_A-3-3',
-    'Location':'GreenhouseA_Row3_Box3',
-    'Timestamp':'2026-10-03 05:37:49',
-    'Metric':'Temperature',
-    'Unit':'F',
-    'Value':'77.2'
-}
+print(__file__)
 
-sensor_readings = [sensor_1_reading,sensor_2_reading,sensor_3_reading]
+json_import_dir = (Path(__file__).parent)
 
+json_file = json_import_dir / "sample_sensor_data.json"
+
+sensor_readings = []
+
+def fetch_sensor_data(json_path):
+    print(json_path)
+    with open(json_path, 'r') as file:
+        input_data = file.read()
+    return input_data
+    
 def check_data_freshness(sensor_output):
     extract_time = dt.datetime.now()
     freshness_data = []
@@ -62,6 +51,8 @@ def read_sensor_data(sensor_data):
         else:
             print(datum["sensor_name"] + " is experiencing data delays. Last reading at " + datum["timestamp"])
             
+sensor_readings = fetch_sensor_data(json_file)
+
 check_results = check_data_freshness(sensor_readings)
 
 read_sensor_data(check_results)
