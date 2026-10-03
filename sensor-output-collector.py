@@ -8,27 +8,25 @@
 import datetime as dt
 import json
 from pathlib import Path
+import requests
 
 freshness_threshold = dt.timedelta(hours=1)
 
-#print(__file__)
-
-json_import_dir = (Path(__file__).parent)
-
-json_file = json_import_dir / "sample_sensor_data.json"
+json_file_loc = "http://localhost:8080/sample_sensor_data.json"
 
 sensor_readings = []
 
-def load_sensor_data_from_file(json_path):
-    #print(json_path)
-    with open(json_path, 'r') as file:
-        output_data = json.load(file)
-    return output_data
+# def load_sensor_data_from_file(json_path):
+#     #print(json_path)
+#     with open(json_path, 'r') as file:
+#         output_data = json.load(file)
+#     return output_data
     
 
-def fetch_sensor_data(json_data):
-    loaded_data = load_sensor_data_from_file(json_data)
-    return loaded_data
+def fetch_sensor_data(location):
+    http_session = requests.session()
+    sensor_data = http_session.request(method='GET',url=location).json()
+    return sensor_data
 
 def check_data_freshness(sensor_output):
     extract_time = dt.datetime.now()
@@ -56,7 +54,7 @@ def read_sensor_data(sensor_data):
         else:
             print(datum["sensor_name"] + " is experiencing data delays. Last reading at " + datum["timestamp"])
             
-sensor_readings = fetch_sensor_data(json_file)
+sensor_readings = fetch_sensor_data(json_file_loc)
 
 check_results = check_data_freshness(sensor_readings)
 
