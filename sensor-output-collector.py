@@ -11,7 +11,7 @@ from pathlib import Path
 
 freshness_threshold = dt.timedelta(hours=1)
 
-print(__file__)
+#print(__file__)
 
 json_import_dir = (Path(__file__).parent)
 
@@ -20,9 +20,9 @@ json_file = json_import_dir / "sample_sensor_data.json"
 sensor_readings = []
 
 def fetch_sensor_data(json_path):
-    print(json_path)
+    #print(json_path)
     with open(json_path, 'r') as file:
-        input_data = file.read()
+        input_data = json.load(file)
     return input_data
     
 def check_data_freshness(sensor_output):
