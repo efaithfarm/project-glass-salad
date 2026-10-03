@@ -7,10 +7,12 @@
 #import requests
 import datetime as dt
 
+freshness_threshold = dt.timedelta(hours=1)
+
 sensor_1_reading = {
     'SensorName':'G_A_sensor_A-3-1',
     'Location':'GreenhouseA_Row3_Box1',
-    'Timestamp':'2026-10-02 14:37:42',
+    'Timestamp':'2026-10-03 06:37:42',
     'Metric':'Temperature',
     'Unit':'F',
     'Value':'77.3'
@@ -18,7 +20,7 @@ sensor_1_reading = {
 sensor_2_reading = {
     'SensorName':'G_A_sensor_A-3-2',
     'Location':'GreenhouseA_Row3_Box2',
-    'Timestamp':'2026-10-02 19:38:16',
+    'Timestamp':'2026-10-03 06:38:16',
     'Metric':'Temperature',
     'Unit':'F',
     'Value':'77.7'
@@ -26,7 +28,7 @@ sensor_2_reading = {
 sensor_3_reading = {
     'SensorName':'G_A_sensor_A-3-3',
     'Location':'GreenhouseA_Row3_Box3',
-    'Timestamp':'2026-10-02 19:37:49',
+    'Timestamp':'2026-10-03 05:37:49',
     'Metric':'Temperature',
     'Unit':'F',
     'Value':'77.2'
@@ -43,7 +45,7 @@ def check_data_freshness(sensor_output):
         freshness = True
         timestamp_conv = dt.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
         time_difference = extract_time - timestamp_conv
-        if time_difference.total_seconds() > 3600:
+        if time_difference > freshness_threshold:
             freshness = False
         sensor_data = {
             "sensor_name": sensor_name,
@@ -51,10 +53,16 @@ def check_data_freshness(sensor_output):
             "timestamp": timestamp
         }
         freshness_data.append(sensor_data)
-    for datum in freshness_data:
+    return freshness_data
+            
+def read_sensor_data(sensor_data):
+    for datum in sensor_data:
         if datum["freshness"]:
             print(datum["sensor_name"] + " is up to date. Last reading at " + datum["timestamp"])
         else:
             print(datum["sensor_name"] + " is experiencing data delays. Last reading at " + datum["timestamp"])
-check_data_freshness(sensor_readings)
+            
+check_results = check_data_freshness(sensor_readings)
+
+read_sensor_data(check_results)
 #if __name__ == "__main__":
