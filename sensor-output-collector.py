@@ -11,14 +11,26 @@ import requests
 
 freshness_threshold = dt.timedelta(hours=1)
 
-json_file_loc = "http://localhost:8080/sample_sensor_data.json"
+json_file_loc = "http://localhost:8080/sorry_man_no_can_do.json"
 
 sensor_readings = []
 
 def fetch_sensor_data(location):
     http_session = requests.session()
-    sensor_data = http_session.request(method='GET',url=location).json()
-    return sensor_data
+    sensor_response = http_session.request(method='GET',url=location)
+    response_code = sensor_response.status_code
+    print(response_code)
+    if response_code == 200:
+        sensor_data = sensor_response.json()    
+        return sensor_data
+    elif response_code == 404:
+        json_no_worky = "What is wrong with you? Why would we even have a file called that. NOT FOUND, DUMBASS."
+        print(json_no_worky)
+        return json_no_worky
+    else:
+        bad_response = "I don't even know where to start. What did you do this time?"
+        print(bad_response)
+        return bad_response
 
 def check_data_freshness(sensor_output):
     extract_time = dt.datetime.now()
@@ -48,6 +60,8 @@ def read_sensor_data(sensor_data):
             
 sensor_readings = fetch_sensor_data(json_file_loc)
 
-check_results = check_data_freshness(sensor_readings)
-
-read_sensor_data(check_results)
+if isinstance(sensor_readings,list):
+    check_results = check_data_freshness(sensor_readings)
+    read_sensor_data(check_results)
+else:
+    print("I would recommend reading the error messages above. They will tell you why your shit is all fucked.")
