@@ -11,13 +11,17 @@ import requests
 
 freshness_threshold = dt.timedelta(hours=1)
 
-json_file_loc = "http://localhost:8080/sorry_man_no_can_do.json"
+json_file_loc = "http://localhost:8080/sample_sensor_data.json"
 
 sensor_readings = []
 
 def fetch_sensor_data(location):
     http_session = requests.session()
-    sensor_response = http_session.request(method='GET',url=location)
+    try:
+        sensor_response = http_session.request(method='GET',url=location)
+    except requests.exceptions.ConnectionError:
+        print("Connection failed. Is the fucking server running?")
+        return ""
     response_code = sensor_response.status_code
     print(response_code)
     if response_code == 200:
