@@ -2,7 +2,7 @@
     {
         "SensorName":"G_A_sensor_A-3-1",
         "Location":"GreenhouseA_Row3_Box1",
-        "Timestamp":"2026-10-03 09:37:42",
+        "Timestamp":"2026-10-10 09:37:42",
         "Metric":"Temperature",
         "Unit":"F",
         "Value":"77.3"
@@ -22,5 +22,13 @@
         "Metric":"Temperature",
         "Unit":"F",
         "Value":"77.2"
+    },
+    {
+        "SensorName":"G_A_sensor_A-3-1",
+        "Location":"GreenhouseA_Row3_Box1",
+        "Timestamp":"2026-10-10 10:38:16",
+        "Metric":"Temperature",
+        "Unit":"F",
+        "Value":"77.7"
     }
 ]

@@ -11,7 +11,7 @@ import requests
 
 freshness_threshold = dt.timedelta(hours=1)
 
-json_file_loc = "http://localhost:8081/sample_sensor_data.json"
+json_file_loc = "http://localhost:8080/sample_sensor_data.json"
 
 sensor_readings = []
 
@@ -28,7 +28,11 @@ def fetch_sensor_data(location):
     response_code = sensor_response.status_code
     print(response_code)
     if response_code == 200:
-        sensor_data = sensor_response.json()    
+        try:
+            sensor_data = sensor_response.json()    
+        except requests.exceptions.JSONDecodeError:
+            print("You are tiny. I can see the whole of time and space. Every single atom of your existence, and I divide them.")
+            return ""
         return sensor_data
     elif response_code == 404:
         json_no_worky = "What is wrong with you? Why would we even have a file called that. NOT FOUND, DUMBASS."
@@ -42,11 +46,28 @@ def fetch_sensor_data(location):
 def check_data_freshness(sensor_output):
     extract_time = dt.datetime.now()
     freshness_data = []
+    latest_readings = {}
+    if not sensor_output:
+        print("The Library is silent. And this list is empty. We have a Vashta Nerada problem.")
     for reading in sensor_output:
+        if isinstance(reading,dict) is False:
+            print("not a dict, not interested")
+            continue
         sensor_name = reading.get("SensorName", "Unknown")
-        timestamp = reading.get("Timestamp", "Unknown")
+        latest_readings[sensor_name] = reading
+        if sensor_name in latest_readings:
+            print("This is probably not a fixed point in time, so River Song probably can't destroy Time itself here.")
+        else:
+            timestamp = reading.get("Timestamp", "Unknown")
+        if timestamp == "Unknown":
+            print("This timestamp is unacceptable. Witness now the subjugation of Earth for the glory of Sontar.")
+            continue
         freshness = True
-        timestamp_conv = dt.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        try:
+            timestamp_conv = dt.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            print("Sontarans have NO WEAKNESS. Well, except ValueErrors. Such as this one, where this timestamp isn't a timestamp. Oh, and their probic vents.")
+            continue
         time_difference = extract_time - timestamp_conv
         if time_difference > freshness_threshold:
             freshness = False
