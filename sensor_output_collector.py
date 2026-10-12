@@ -55,6 +55,9 @@ def check_data_freshness(sensor_output):
             print("not a dict, not interested")
             continue
         sensor_name = reading.get("SensorName", "Unknown")
+        if sensor_name == "Unknown":
+            print("The Great Intelligence is asking: 'Tell me, sensor, what is your name?")
+            continue
         timestamp = reading.get("Timestamp", "Unknown")
         if timestamp == "Unknown":
             print("This timestamp is unacceptable. Witness now the subjugation of Earth for the glory of Sontar.")

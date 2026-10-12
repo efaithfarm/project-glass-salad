@@ -66,3 +66,26 @@ class TestSensorCollector(unittest.TestCase):
         self.assertEqual(len(result),1)
         self.assertEqual(result[0]["sensor_name"],"G_A_sensor_A-3-1")
         self.assertEqual(result[0]["timestamp"],"2026-10-12 05:38:16")
+        
+    def test_missing_timestamp_is_skipped(self):
+        readings = [
+            {
+                "SensorName":"G_A_sensor_A-3-1",
+                "Timestamp":"2026-10-12 05:38:16"
+            },
+            {
+                "SensorName":"G_A_sensor_A-3-2"
+            }
+        ]
+        result = check_data_freshness(readings)
+        self.assertEqual(len(result),1)
+        self.assertEqual(result[0]["sensor_name"],"G_A_sensor_A-3-1")
+        
+    def test_missing_sensorname_is_skipped(self):
+        readings = [
+            {
+                "Timestamp":"2026-10-12 05:38:16"
+            }
+        ]
+        result = check_data_freshness(readings)
+        self.assertEqual(len(result),0)
