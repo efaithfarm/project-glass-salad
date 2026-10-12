@@ -105,11 +105,12 @@ def read_sensor_data(sensor_data):
             print(datum["sensor_name"] + " is experiencing data delays. Last reading at " + datum["timestamp"])
         elif datum["freshness_status"] == "future":
             print(datum["sensor_name"] + " is experiencing a temporal anomaly. Last reading at " + datum["timestamp"])
-            
-sensor_readings = fetch_sensor_data(json_file_loc)
 
-if isinstance(sensor_readings,list):
-    check_results = check_data_freshness(sensor_readings)
-    read_sensor_data(check_results)
-else:
-    print("I would recommend reading the error messages above. They will tell you why your shit is all fucked.")
+if __name__ == "__main__":            
+    sensor_readings = fetch_sensor_data(json_file_loc)
+
+    if isinstance(sensor_readings,list):
+        check_results = check_data_freshness(sensor_readings)
+        read_sensor_data(check_results)
+    else:
+        print("I would recommend reading the error messages above. They will tell you why your shit is all fucked.")
