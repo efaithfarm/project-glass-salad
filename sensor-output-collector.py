@@ -8,6 +8,7 @@ import datetime as dt
 import json
 from pathlib import Path
 import requests
+from pprint import pprint
 
 freshness_threshold = dt.timedelta(hours=1)
 
@@ -58,7 +59,6 @@ def check_data_freshness(sensor_output):
         if timestamp == "Unknown":
             print("This timestamp is unacceptable. Witness now the subjugation of Earth for the glory of Sontar.")
             continue
-        freshness = True
         try:
             timestamp_conv = dt.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
         except ValueError:
@@ -76,6 +76,15 @@ def check_data_freshness(sensor_output):
                 latest_readings[sensor_name] = reading
         else:
             latest_readings[sensor_name] = reading
+    for item in latest_readings.values():
+        sensor_name = item.get("SensorName", "Unknown")
+        timestamp = item.get("Timestamp", "Unknown")
+        try:
+            timestamp_conv = dt.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            print("Strptime used ValueError! It's super effective! (at breaking the code)")
+            continue
+        freshness = True
         time_difference = extract_time - timestamp_conv
         if time_difference > freshness_threshold:
             freshness = False
