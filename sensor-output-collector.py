@@ -54,11 +54,7 @@ def check_data_freshness(sensor_output):
             print("not a dict, not interested")
             continue
         sensor_name = reading.get("SensorName", "Unknown")
-        latest_readings[sensor_name] = reading
-        if sensor_name in latest_readings:
-            print("This is probably not a fixed point in time, so River Song probably can't destroy Time itself here.")
-        else:
-            timestamp = reading.get("Timestamp", "Unknown")
+        timestamp = reading.get("Timestamp", "Unknown")
         if timestamp == "Unknown":
             print("This timestamp is unacceptable. Witness now the subjugation of Earth for the glory of Sontar.")
             continue
@@ -68,6 +64,18 @@ def check_data_freshness(sensor_output):
         except ValueError:
             print("Sontarans have NO WEAKNESS. Well, except ValueErrors. Such as this one, where this timestamp isn't a timestamp. Oh, and their probic vents.")
             continue
+        if sensor_name in latest_readings:
+            previous_timestamp = latest_readings[sensor_name].get("Timestamp", "Unknown")
+            print("THERE CAN ONLY BE ONE. I mean, when it comes to timestamps, anyway. Like this one: " + previous_timestamp)
+            try:
+                previous_timestamp_conv = dt.datetime.strptime(previous_timestamp, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                print("A ValueError here means you will be melted with acid. Er, not melted with acid. Old habits.")
+            if previous_timestamp_conv < timestamp_conv:
+                print("This one is newer, we should keep it")
+                latest_readings[sensor_name] = reading
+        else:
+            latest_readings[sensor_name] = reading
         time_difference = extract_time - timestamp_conv
         if time_difference > freshness_threshold:
             freshness = False
