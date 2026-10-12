@@ -62,17 +62,16 @@ def check_data_freshness(sensor_output):
         try:
             timestamp_conv = dt.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
         except ValueError:
-            print("Sontarans have NO WEAKNESS. Well, except ValueErrors. Such as this one, where this timestamp isn't a timestamp. Oh, and their probic vents.")
+            print("Sontarans have NO WEAKNESS. Well, except timestamp-related ValueErrors. Oh, and their probic vents.")
             continue
         if sensor_name in latest_readings:
             previous_timestamp = latest_readings[sensor_name].get("Timestamp", "Unknown")
-            print("THERE CAN ONLY BE ONE. I mean, when it comes to timestamps, anyway. Like this one: " + previous_timestamp)
             try:
                 previous_timestamp_conv = dt.datetime.strptime(previous_timestamp, "%Y-%m-%d %H:%M:%S")
             except ValueError:
                 print("A ValueError here means you will be melted with acid. Er, not melted with acid. Old habits.")
             if previous_timestamp_conv < timestamp_conv:
-                print("This one is newer, we should keep it")
+                print("THERE CAN ONLY BE ONE. In this case, 'ONE' refers to the newer timestamp.")
                 latest_readings[sensor_name] = reading
         else:
             latest_readings[sensor_name] = reading
@@ -84,13 +83,15 @@ def check_data_freshness(sensor_output):
         except ValueError:
             print("Strptime used ValueError! It's super effective! (at breaking the code)")
             continue
-        freshness = True
+        freshness = "fresh"
         time_difference = extract_time - timestamp_conv
         if time_difference > freshness_threshold:
-            freshness = False
+            freshness = "stale"
+        elif time_difference < dt.timedelta(0):
+            freshness = "future"
         sensor_data = {
             "sensor_name": sensor_name,
-            "freshness": freshness,
+            "freshness_status": freshness,
             "timestamp": timestamp
         }
         freshness_data.append(sensor_data)
@@ -98,10 +99,12 @@ def check_data_freshness(sensor_output):
             
 def read_sensor_data(sensor_data):
     for datum in sensor_data:
-        if datum["freshness"]:
+        if datum["freshness_status"] == "fresh":
             print(datum["sensor_name"] + " is up to date. Last reading at " + datum["timestamp"])
-        else:
+        elif datum["freshness_status"] == "stale":
             print(datum["sensor_name"] + " is experiencing data delays. Last reading at " + datum["timestamp"])
+        elif datum["freshness_status"] == "future":
+            print(datum["sensor_name"] + " is experiencing a temporal anomaly. Last reading at " + datum["timestamp"])
             
 sensor_readings = fetch_sensor_data(json_file_loc)
 
