@@ -55,7 +55,7 @@ def check_data_freshness(sensor_output):
             print("not a dict, not interested")
             continue
         sensor_name = reading.get("SensorName", "Unknown")
-        if sensor_name == "Unknown":
+        if sensor_name == "Unknown" or sensor_name == "":
             print("The Great Intelligence is asking: 'Tell me, sensor, what is your name?")
             continue
         timestamp = reading.get("Timestamp", "Unknown")
@@ -90,8 +90,10 @@ def check_data_freshness(sensor_output):
         time_difference = extract_time - timestamp_conv
         if time_difference > freshness_threshold:
             freshness = "stale"
+            print("This one's no good. See that white fuzz? Bread mold. Time to throw it out.")
         elif time_difference < dt.timedelta(0):
             freshness = "future"
+            print("Throw this one out too. Why? Spoilers, sweetie.")
         sensor_data = {
             "sensor_name": sensor_name,
             "freshness_status": freshness,

@@ -1,4 +1,5 @@
 import unittest
+import datetime as dt
 from sensor_output_collector import check_data_freshness
 
 class TestSensorCollector(unittest.TestCase):
@@ -89,3 +90,55 @@ class TestSensorCollector(unittest.TestCase):
         ]
         result = check_data_freshness(readings)
         self.assertEqual(len(result),0)
+        
+    def test_empty_sensorname_is_skipped(self):
+        readings = [
+            {
+                "SensorName":"",
+                "Timestamp":"2026-10-12 05:38:16"
+            }
+        ]
+        result = check_data_freshness(readings)
+        self.assertEqual(len(result),0)
+        
+    def test_non_dict_reading_is_skipped(self):
+        readings = ["Stormageddon, Dark Lord of All"]
+        result = check_data_freshness(readings)
+        self.assertEqual(result, [])
+        
+    def test_old_reading_is_stale(self):
+        old_timestamp = dt.datetime.now() - dt.timedelta(hours=2)
+        old_timestamp = old_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        readings = [
+            {
+                "SensorName":"G_A_sensor_A-3-1",
+                "Timestamp":old_timestamp
+            }
+        ]
+        result = check_data_freshness(readings)
+        self.assertEqual(result[0]["freshness_status"], "stale")
+        
+    def test_recent_reading_is_fresh(self):
+        recent_timestamp = dt.datetime.now() - dt.timedelta(minutes=5)
+        recent_timestamp = recent_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        readings = [
+            {
+                "SensorName":"G_A_sensor_A-3-1",
+                "Timestamp":recent_timestamp
+            }
+        ]
+        result = check_data_freshness(readings)
+        self.assertEqual(result[0]["freshness_status"], "fresh")
+        
+    def test_future_reading_is_flagged(self):
+        future_timestamp = dt.datetime.now() + dt.timedelta(hours=2)
+        future_timestamp = future_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        readings = [
+            {
+                "SensorName":"G_A_sensor_A-3-1",
+                "Timestamp":future_timestamp
+            }
+        ]
+        result = check_data_freshness(readings)
+        self.assertEqual(result[0]["freshness_status"], "future")
+        
