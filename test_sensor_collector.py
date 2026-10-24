@@ -1,6 +1,6 @@
 import unittest
 import datetime as dt
-from sensor_output_collector import check_data_freshness
+from sensor_output_collector import check_data_freshness, summarize_freshness
 
 class TestSensorCollector(unittest.TestCase):
     def test_newest_reading_wins(self):
@@ -141,4 +141,82 @@ class TestSensorCollector(unittest.TestCase):
         ]
         result = check_data_freshness(readings)
         self.assertEqual(result[0]["freshness_status"], "future")
+        
+    def test_exactly_one_hour_old_is_fresh(self):
+        reference_time = dt.datetime(2026,10,21,12,0,0)
+        reading_time = reference_time - dt.timedelta(hours=1)
+        reading_time = reading_time.strftime('%Y-%m-%d %H:%M:%S')
+        readings = [
+            {
+                "SensorName":"G_A_sensor_A-3-1",
+                "Timestamp":reading_time
+            }
+        ]
+        result = check_data_freshness(readings, reference_time=reference_time)
+        self.assertEqual(result[0]["freshness_status"], "fresh")
+        
+        
+    def test_one_second_past_fresh_is_stale(self):
+        reference_time = dt.datetime(2026,10,21,12,0,0)
+        reading_time = reference_time - dt.timedelta(hours=1, seconds=1)
+        reading_time = reading_time.strftime('%Y-%m-%d %H:%M:%S')
+        readings = [
+            {
+                "SensorName":"G_A_sensor_A-3-1",
+                "Timestamp":reading_time
+            }
+        ]
+        result = check_data_freshness(readings, reference_time=reference_time)
+        self.assertEqual(result[0]["freshness_status"], "stale")
+        
+    def test_result_contains_expected_fields(self):
+        reference_time = dt.datetime(2026,10,21,12,0,0)
+        reading_time = reference_time - dt.timedelta(hours=1)
+        reading_time = reading_time.strftime('%Y-%m-%d %H:%M:%S')
+        readings = [
+            {
+                "SensorName":"G_A_sensor_A-3-1",
+                "Timestamp":reading_time
+            }
+        ]
+        result = check_data_freshness(readings, reference_time=reference_time)
+        self.assertIn("sensor_name", result[0])
+        self.assertIn("timestamp", result[0])
+        self.assertIn("freshness_status", result[0])
+        
+    def test_summarize_freshness_counts_statuses(self):
+        readings = [
+            {
+                "freshness_status":"fresh"
+            },
+            {
+                "freshness_status":"fresh"
+            },
+            {
+                "freshness_status":"stale"
+            },
+            {
+                "freshness_status":"future"
+            }
+        ]
+        expected_result = {
+            "total":4,
+            "fresh":2,
+            "stale":1,
+            "future":1
+        }
+        result = summarize_freshness(readings)
+        self.assertEqual(result, expected_result)
+        
+    def test_summarize_empty_list(self):
+        readings = []
+        expected_result = {
+            "total":0,
+            "fresh":0,
+            "stale":0,
+            "future":0
+        }
+        result = summarize_freshness(readings)
+        self.assertEqual(result, expected_result)
+        
         

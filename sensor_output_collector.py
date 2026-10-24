@@ -44,8 +44,9 @@ def fetch_sensor_data(location):
         print(bad_response)
         return bad_response
 
-def check_data_freshness(sensor_output):
-    extract_time = dt.datetime.now()
+def check_data_freshness(sensor_output, reference_time=None):
+    if reference_time is None:
+        reference_time = dt.datetime.now()
     freshness_data = []
     latest_readings = {}
     if not sensor_output:
@@ -87,7 +88,7 @@ def check_data_freshness(sensor_output):
             print("Strptime used ValueError! It's super effective! (at breaking the code)")
             continue
         freshness = "fresh"
-        time_difference = extract_time - timestamp_conv
+        time_difference = reference_time - timestamp_conv
         if time_difference > freshness_threshold:
             freshness = "stale"
             print("This one's no good. See that white fuzz? Bread mold. Time to throw it out.")
@@ -110,6 +111,22 @@ def read_sensor_data(sensor_data):
             print(datum["sensor_name"] + " is experiencing data delays. Last reading at " + datum["timestamp"])
         elif datum["freshness_status"] == "future":
             print(datum["sensor_name"] + " is experiencing a temporal anomaly. Last reading at " + datum["timestamp"])
+            
+def summarize_freshness(freshness_data):
+    total_readings = len(freshness_data)
+    data_summary = {
+        "total":total_readings,
+        "fresh":0,
+        "stale":0,
+        "future":0
+    }
+    for reading in freshness_data:
+        data_summary[reading["freshness_status"]] += 1
+    return data_summary
+
+def format_freshness_report(data_summary):
+    report = f"SeedWatch Sensor Report\n-----------------------\nSensors checked: {data_summary["total"]}"
+    return report
 
 if __name__ == "__main__":            
     sensor_readings = fetch_sensor_data(json_file_loc)
