@@ -1,6 +1,6 @@
 import unittest
 import datetime as dt
-from sensor_output_collector import check_data_freshness, summarize_freshness
+from sensor_output_collector import check_data_freshness, summarize_freshness, format_freshness_report
 
 class TestSensorCollector(unittest.TestCase):
     def test_newest_reading_wins(self):
@@ -219,4 +219,20 @@ class TestSensorCollector(unittest.TestCase):
         result = summarize_freshness(readings)
         self.assertEqual(result, expected_result)
         
-        
+    def test_format_freshness_reporting(self):
+        readings = {
+            "total":4,
+            "fresh":2,
+            "stale":1,
+            "future":1
+        }
+        expected_result = (
+            "SeedWatch Sensor Report\n"
+            "-----------------------\n"
+            "Sensors checked: 4\n"
+            "Fresh: 2\n"
+            "Stale: 1\n"
+            "Future: 1"
+        )
+        result = format_freshness_report(readings)
+        self.assertEqual(result, expected_result)

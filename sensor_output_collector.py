@@ -21,7 +21,7 @@ def fetch_sensor_data(location):
     try:
         sensor_response = http_session.request(method='GET',url=location,timeout=5)
     except requests.exceptions.ConnectionError:
-        print("Connection failed. Is the fucking server running?")
+        print("What in all of the Burning Hells is this? There's no connection at all. Bloody hell, how embarrassing.")
         return ""
     except requests.exceptions.Timeout:
         print("Even the Girl Who Waited is done waiting for this crap.")
@@ -36,11 +36,11 @@ def fetch_sensor_data(location):
             return ""
         return sensor_data
     elif response_code == 404:
-        json_no_worky = "What is wrong with you? Why would we even have a file called that. NOT FOUND, DUMBASS."
+        json_no_worky = "Total event collapse! The whole universe - particularly this page you're looking for - will never have existed. Please, listen to me!"
         print(json_no_worky)
         return json_no_worky
     else:
-        bad_response = "I don't even know where to start. What did you do this time?"
+        bad_response = "There are worse ways to go than having your face snogged off by a dodgy mermaid. Like, failing THIS badly at creating a valid HTTP request."
         print(bad_response)
         return bad_response
 
@@ -91,7 +91,7 @@ def check_data_freshness(sensor_output, reference_time=None):
         time_difference = reference_time - timestamp_conv
         if time_difference > freshness_threshold:
             freshness = "stale"
-            print("This one's no good. See that white fuzz? Bread mold. Time to throw it out.")
+            print("Oh bother, this's much too far out of date. Best pitch it, and come again.")
         elif time_difference < dt.timedelta(0):
             freshness = "future"
             print("Throw this one out too. Why? Spoilers, sweetie.")
@@ -125,7 +125,14 @@ def summarize_freshness(freshness_data):
     return data_summary
 
 def format_freshness_report(data_summary):
-    report = f"SeedWatch Sensor Report\n-----------------------\nSensors checked: {data_summary["total"]}"
+    report = (
+        f"SeedWatch Sensor Report\n"
+        f"-----------------------\n"
+        f"Sensors checked: {data_summary["total"]}\n"
+        f"Fresh: {data_summary["fresh"]}\n"
+        f"Stale: {data_summary["stale"]}\n"
+        f"Future: {data_summary["future"]}"
+    )
     return report
 
 if __name__ == "__main__":            
@@ -134,5 +141,8 @@ if __name__ == "__main__":
     if isinstance(sensor_readings,list):
         check_results = check_data_freshness(sensor_readings)
         read_sensor_data(check_results)
+        results_summary = summarize_freshness(check_results)
+        freshness_report = format_freshness_report(results_summary)
+        print(freshness_report)
     else:
-        print("I would recommend reading the error messages above. They will tell you why your shit is all fucked.")
+        print("Oh dear. This isn't a nicely formatted freshness report at all. Tsk, tsk, tsk. Quite disappointing.")
